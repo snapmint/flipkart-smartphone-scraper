@@ -1,6 +1,8 @@
 __pycache__/
 *.pyc
 .env
+.DS_Store
+*.xlsx
 .venv/
 venv/
 output/

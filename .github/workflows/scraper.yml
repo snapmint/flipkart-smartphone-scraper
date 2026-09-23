@@ -34,7 +34,7 @@ jobs:
 
       - name: Run scraper
         run: |
-          python scraper.py
+          python smartphone_fk.py
 
       - name: Check scraper output
         run: |
@@ -45,10 +45,10 @@ jobs:
         run: |
           SCRAPE_DATE=$(TZ=Asia/Kolkata date +"%Y-%m-%d")
 
-          FILE=$(find . -type f -name "*.xlsx" | head -n 1)
+          FILE=$(find . -maxdepth 1 -type f -name "flipkart_mobile_*.xlsx" | head -n 1)
 
           if [ -z "$FILE" ]; then
-            echo "ERROR: No Excel file was created by the scraper."
+            echo "ERROR: No Flipkart Excel file was created."
             echo "Files in workspace:"
             find . -maxdepth 3 -type f
             exit 1
@@ -59,7 +59,7 @@ jobs:
           mv "$FILE" "flipkart_mobile_assortment_${SCRAPE_DATE}.xlsx"
 
           echo "Final file:"
-          ls -lh *.xlsx      
+          ls -lh *.xlsx
 
       - name: Upload Excel as GitHub artifact
         uses: actions/upload-artifact@v4
