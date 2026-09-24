@@ -6,6 +6,10 @@ on:
   schedule:
     - cron: "30 3 * * *"
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   run-scraper:
     runs-on: ubuntu-latest
@@ -27,7 +31,7 @@ jobs:
       - name: Install Playwright browsers
         run: |
           playwright install --with-deps chromium
-          
+
       - name: Test Flipkart connectivity
         run: |
           curl -I -L --max-time 20 https://www.flipkart.com
@@ -67,3 +71,30 @@ jobs:
           name: flipkart-mobile-assortment
           path: "*.xlsx"
           if-no-files-found: error
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_SCRAPER_DEPLOY_ROLE_ARN }}
+          aws-region: ap-south-1
+
+      - name: Verify AWS identity
+        run: |
+          aws sts get-caller-identity
+
+      - name: Upload Excel to S3
+        run: |
+          FILE=$(find . -maxdepth 1 -type f -name "*.xlsx" | head -n 1)
+
+          if [ -z "$FILE" ]; then
+            echo "ERROR: No Excel file found for S3 upload."
+            exit 1
+          fi
+
+          echo "Uploading: $FILE"
+
+          aws s3 cp \
+            "$FILE" \
+            "s3://snapmint-scraper-739589793672-ap-south-1-an/fk_smartphone/"
+
+          echo "S3 upload completed successfully."
