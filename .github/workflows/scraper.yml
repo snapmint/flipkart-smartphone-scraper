@@ -3,9 +3,6 @@ name: Flipkart Smartphone Scraper
 on:
   workflow_dispatch:
 
-  schedule:
-    - cron: "30 3 * * *"
-
 permissions:
   contents: read
   id-token: write
