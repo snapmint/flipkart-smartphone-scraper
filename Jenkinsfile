@@ -15,7 +15,7 @@ pipeline {
         S3_BUCKET = 'snapmint-s3-to-warehouse'
         FLIPKART_DATASET = 'flipkart_mobile_scraper'
         AMAZON_DATASET = 'amazon_mobile_scraper'
-        "PATH+VENV" = "${WORKSPACE}/.venv/bin"
+        VENV_DIR = '.venv'
     }
 
     stages {
@@ -23,9 +23,9 @@ pipeline {
             steps {
                 sh '''
                     set -eux
-                    python3 -m venv .venv
-                    python -m pip install --upgrade pip
-                    pip install -r requirements.txt
+                    python3 -m venv "$VENV_DIR"
+                    "$VENV_DIR/bin/python" -m pip install --upgrade pip
+                    "$VENV_DIR/bin/pip" install -r requirements.txt
                 '''
             }
         }
@@ -34,7 +34,7 @@ pipeline {
             steps {
                 sh '''
                     set -eux
-                    playwright install --with-deps chromium
+                    "$VENV_DIR/bin/playwright" install --with-deps chromium
                 '''
             }
         }
@@ -52,7 +52,7 @@ pipeline {
             steps {
                 sh '''
                     set -eux
-                    python smartphone_fk.py
+                    "$VENV_DIR/bin/python" smartphone_fk.py
                 '''
             }
         }
@@ -61,7 +61,7 @@ pipeline {
             steps {
                 sh '''
                     set -eux
-                    python smartphone_az.py
+                    "$VENV_DIR/bin/python" smartphone_az.py
                 '''
             }
         }
@@ -93,7 +93,7 @@ pipeline {
 
                         target="$OUTPUT_DIR/$dataset/${SCRAPE_TIMESTAMP}.csv"
                         echo "Converting $label Excel file: $file to $target"
-                        python -c 'import csv, sys; from openpyxl import load_workbook; source_path, target_path = sys.argv[1], sys.argv[2]; workbook = load_workbook(source_path, data_only=True, read_only=True); worksheet = workbook.active; csv_file = open(target_path, "w", newline="", encoding="utf-8"); writer = csv.writer(csv_file); [writer.writerow(["" if value is None else value for value in row]) for row in worksheet.iter_rows(values_only=True)]; csv_file.close(); workbook.close()' "$file" "$target"
+                        "$VENV_DIR/bin/python" -c 'import csv, sys; from openpyxl import load_workbook; source_path, target_path = sys.argv[1], sys.argv[2]; workbook = load_workbook(source_path, data_only=True, read_only=True); worksheet = workbook.active; csv_file = open(target_path, "w", newline="", encoding="utf-8"); writer = csv.writer(csv_file); [writer.writerow(["" if value is None else value for value in row]) for row in worksheet.iter_rows(values_only=True)]; csv_file.close(); workbook.close()' "$file" "$target"
                     }
 
                     convert_excel_to_csv "$FLIPKART_DATASET" "flipkart_mobile_*.xlsx" "Flipkart"
