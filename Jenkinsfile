@@ -13,7 +13,7 @@ pipeline {
     environment {
         AWS_DEFAULT_REGION = 'ap-south-1'
         S3_DESTINATION = 's3://snapmint-scraper-739589793672-ap-south-1-an/fk_smartphone/'
-        PATH+VENV = "${WORKSPACE}/.venv/bin"
+        "PATH+VENV" = "${WORKSPACE}/.venv/bin"
     }
 
     stages {
