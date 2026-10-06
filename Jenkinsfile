@@ -156,8 +156,8 @@ pipeline {
     }
 
     post {
-        success {
-            archiveArtifacts artifacts: '*.xlsx,output/**/*.csv', allowEmptyArchive: false
+always {
+            archiveArtifacts artifacts: '*.xlsx,output/**/*.csv', allowEmptyArchive: true
         }
     }
 }
