@@ -7,6 +7,7 @@ pipeline {
 
     options {
         timestamps()
+        disableConcurrentBuilds()
         buildDiscarder(logRotator(numToKeepStr: '30', artifactNumToKeepStr: '30'))
     }
 
@@ -19,6 +20,16 @@ pipeline {
     }
 
     stages {
+        stage('Clean Previous Scraper Output') {
+            steps {
+                sh '''
+                    set -eux
+                    # Jenkins reuses workspaces; never select a previous build's workbook.
+                    find . -maxdepth 1 -type f \\( -name "flipkart_mobile_*.xlsx" -o -name "amazon_mobile_*.xlsx" \\) -print -delete
+                '''
+            }
+        }
+
         stage('Prepare Python') {
             steps {
                 sh '''
@@ -82,15 +93,16 @@ pipeline {
                         dataset="$1"
                         pattern="$2"
                         label="$3"
-                        file=$(find . -maxdepth 1 -type f -name "$pattern" | head -n 1)
+                        file_count=$(find . -maxdepth 1 -type f -name "$pattern" | wc -l | tr -d '[:space:]')
 
-                        if [ -z "$file" ]; then
-                            echo "ERROR: No $label Excel file was created."
+                        if [ "$file_count" -ne 1 ]; then
+                            echo "ERROR: Expected exactly one current-build $label Excel file; found $file_count."
                             echo "Files in workspace:"
                             find . -maxdepth 3 -type f
                             exit 1
                         fi
 
+                        file=$(find . -maxdepth 1 -type f -name "$pattern")
                         target="$OUTPUT_DIR/$dataset/${SCRAPE_TIMESTAMP}.csv"
                         echo "Converting $label Excel file: $file to $target"
                         "$VENV_DIR/bin/python" -c 'import csv, sys; from openpyxl import load_workbook; source_path, target_path = sys.argv[1], sys.argv[2]; workbook = load_workbook(source_path, data_only=True, read_only=True); worksheet = workbook.active; csv_file = open(target_path, "w", newline="", encoding="utf-8"); writer = csv.writer(csv_file); [writer.writerow(["" if value is None else value for value in row]) for row in worksheet.iter_rows(values_only=True)]; csv_file.close(); workbook.close()' "$file" "$target"
