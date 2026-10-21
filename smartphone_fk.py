@@ -130,6 +130,7 @@ BASE_URLS = [
             "?sid=tyy%2C4io&marketplace=FLIPKART&sort=popularity"
         ),
     },
+  
     {
         "label": "Brand-Apple",
         "url": (
@@ -249,6 +250,10 @@ BASE_URLS = [
             "?sid=tyy%2C4io&marketplace=FLIPKART&sort=popularity"
             "&p%5B%5D=facets.brand%255B%255D%3DMi"
         ),
+    },
+  {
+        "label": "xtra1",
+        "url":"https://www.flipkart.com/search?q=mobiles&otracker=search&otracker1=search&marketplace=FLIPKART&as-show=on&as=off&sort=popularity",
     },
 ]
 
