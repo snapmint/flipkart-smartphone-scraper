@@ -250,6 +250,10 @@ BASE_URLS = [
             "&p%5B%5D=facets.brand%255B%255D%3DMi"
         ),
     },
+  {
+        "label": "xtra",
+        "url": "https://www.flipkart.com/search?q=mobiles&otracker=search&otracker1=search&marketplace=FLIPKART&as-show=on&as=off&sort=popularity",
+    },
 ]
 
 OUTPUT_FILE = f"flipkart_mobile_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
